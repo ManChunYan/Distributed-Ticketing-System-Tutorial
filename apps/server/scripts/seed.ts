@@ -1,4 +1,10 @@
+import dotenv from 'dotenv';
+import path from 'path';
 import { Client } from 'pg';
+
+dotenv.config({
+  path: path.resolve(__dirname, '../.env'),
+});
 
 const EVENT_ID = '00000000-0000-0000-0000-000000000001';
 const TICKET_ID = '00000000-0000-0000-0000-000000000002';
@@ -7,9 +13,9 @@ async function seed() {
   const client = new Client({
     host: process.env.DB_HOST ?? 'localhost',
     port: Number(process.env.DB_PORT ?? 5432),
-    user: process.env.DB_USER ?? 'ticketing',
+    user: process.env.DB_USERNAME ?? 'ticketing',
     password: process.env.DB_PASSWORD ?? 'ticketing',
-    database: process.env.DB_NAME ?? 'ticketing',
+    database: process.env.DB_DATABASE ?? 'ticketing',
   });
 
   await client.connect();

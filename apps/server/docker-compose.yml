@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ticketing
       POSTGRES_DB: ticketing
     ports:
-      - "${DB_PORT}:5432"
+      - '${DB_PORT:-5432}:5432'
     volumes:
       - ticketing-postgres-data:/var/lib/postgresql/data
 
