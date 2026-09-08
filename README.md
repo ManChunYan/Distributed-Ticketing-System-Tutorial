@@ -1,4 +1,4 @@
-# Distributed-Ticketing-System-Tutorial
+# Distributed Ticketing System Tutorial
 
 Learn distributed systems by evolving a simple ticketing service through concurrency
 
@@ -8,11 +8,11 @@ Learn distributed systems by evolving a simple ticketing service through concurr
 
 Make sure the following tools are installed:
 
-Node.js
-pnpm
-Docker
-Docker Compose
-k6 — used for load testing
+- Node.js
+- pnpm
+- Docker
+- Docker Compose
+- k6 (load testing)
 
 Check your installation:
 
@@ -83,31 +83,73 @@ http://localhost:3000
 
 ---
 
-##Chapter 1 — Simple Ticketing System
+### Chapter 1 - Simple Ticketing System
 
-tag 0.1.0
+Tag: `0.1.0`
 
 Stack: NestJS / PostgreSQL / Docker Compose / k6
 
 Build
 
-Client → NestJS → PostgreSQL
+Client -> NestJS -> PostgreSQL
 
 Build a basic ticket purchasing flow:
 
-Read Ticket → Check Stock → Decrease Stock → Create Order
+Read Ticket -> Check Stock -> Decrease Stock -> Create Order
+
+Example:
+
+````text
+========== Overselling Result ==========
+Initial tickets:      100
+Created orders:       1000
+Remaining stock:      81
+
+OVERSELLING DETECTED
+Oversold orders:      900
+========================================
+
+### Run the benchmark
+
+From `apps/server`:
+
+```bash
+cp .env.example .env
+pnpm install
+docker compose up -d
+pnpm run start:dev
+````
+
+In another terminal, after the server has created the database tables:
+
+```bash
+pnpm run seed
+```
+
+The seed script creates one event with ticket id
+`00000000-0000-0000-0000-000000000002` and 100 available tickets.
+
+Run the load test from `apps/server`:
+
+```bash
+pnpm run load:test
+```
+
+The benchmark intentionally uses a non-transactional read/check/write flow.
+It demonstrates the race condition described in this chapter and is not a
+production-safe purchasing implementation.
 
 Test
 
-100 Tickets / 1,000 Concurrent Requests
+100 Tickets / 1,000 Requests (100 virtual users)
 
 Result
 
-Orders > 100 → Overselling
+Orders > 100 -> Overselling
 
 Problem
 
-The Read → Check → Write flow causes a Race Condition under concurrent requests.
+The Read -> Check -> Write flow causes a race condition under concurrent requests.
 
 Next
 
