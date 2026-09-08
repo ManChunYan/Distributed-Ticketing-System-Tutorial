@@ -3,14 +3,13 @@ import { check } from 'k6';
 import { Counter } from 'k6/metrics';
 
 export const options = {
-  vus: 100,
-  iterations: 1000,
+  vus: Number(__ENV.LOAD_VUS || 100),
+  iterations: Number(__ENV.LOAD_ITERATIONS || 1000),
 };
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 const TICKET_ID = __ENV.TICKET_ID || '00000000-0000-0000-0000-000000000002';
 
-// 自訂統計
 const purchaseSuccess = new Counter('purchase_success_201');
 const purchaseConflict = new Counter('purchase_conflict_409');
 const purchaseUnexpected = new Counter('purchase_unexpected');

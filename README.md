@@ -58,6 +58,13 @@ DB_PORT=5432
 DB_USERNAME=ticketing
 DB_PASSWORD=ticketing
 DB_DATABASE=ticketing
+
+BASE_URL=http://localhost:3000
+EVENT_ID=00000000-0000-0000-0000-000000000001
+TICKET_ID=00000000-0000-0000-0000-000000000002
+TICKET_TOTAL=100
+LOAD_VUS=100
+LOAD_ITERATIONS=1000
 ```
 
 ### 3. Start PostgreSQL
@@ -99,7 +106,7 @@ Read Ticket -> Check Stock -> Decrease Stock -> Create Order
 
 Example:
 
-````text
+```text
 ========== Overselling Result ==========
 Initial tickets:      100
 Created orders:       1000
@@ -108,6 +115,8 @@ Remaining stock:      81
 OVERSELLING DETECTED
 Oversold orders:      900
 ========================================
+
+```
 
 ### Run the benchmark
 
@@ -118,7 +127,7 @@ cp .env.example .env
 pnpm install
 docker compose up -d
 pnpm run start:dev
-````
+```
 
 In another terminal, after the server has created the database tables:
 

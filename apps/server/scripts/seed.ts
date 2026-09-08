@@ -6,8 +6,14 @@ dotenv.config({
   path: path.resolve(__dirname, '../.env'),
 });
 
-const EVENT_ID = '00000000-0000-0000-0000-000000000001';
-const TICKET_ID = '00000000-0000-0000-0000-000000000002';
+const EVENT_ID = process.env.EVENT_ID ?? '00000000-0000-0000-0000-000000000001';
+const TICKET_ID =
+  process.env.TICKET_ID ?? '00000000-0000-0000-0000-000000000002';
+const TICKET_TOTAL = Number(process.env.TICKET_TOTAL ?? 100);
+
+if (!Number.isInteger(TICKET_TOTAL) || TICKET_TOTAL <= 0) {
+  throw new Error('TICKET_TOTAL must be a positive integer');
+}
 
 async function seed() {
   const client = new Client({
@@ -53,15 +59,15 @@ async function seed() {
         )
         VALUES ($1, $2, $3, $4);
       `,
-      [TICKET_ID, EVENT_ID, 100, 100],
+      [TICKET_ID, EVENT_ID, TICKET_TOTAL, TICKET_TOTAL],
     );
 
     console.log('');
     console.log('Benchmark seed completed.');
     console.log(`Event ID:  ${EVENT_ID}`);
     console.log(`Ticket ID: ${TICKET_ID}`);
-    console.log('Tickets:   100');
-    console.log('Remaining: 100');
+    console.log(`Tickets:   ${TICKET_TOTAL}`);
+    console.log(`Remaining: ${TICKET_TOTAL}`);
   } finally {
     await client.end();
   }

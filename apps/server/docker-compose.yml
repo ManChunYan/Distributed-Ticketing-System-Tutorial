@@ -4,9 +4,9 @@ services:
     container_name: ticketing-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ticketing
-      POSTGRES_PASSWORD: ticketing
-      POSTGRES_DB: ticketing
+      POSTGRES_USER: '${DB_USERNAME:-ticketing}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-ticketing}'
+      POSTGRES_DB: '${DB_DATABASE:-ticketing}'
     ports:
       - '${DB_PORT:-5432}:5432'
     volumes:
