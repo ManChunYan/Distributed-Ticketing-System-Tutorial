@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { Client } from 'pg';
+import Redis from 'ioredis';
 
 dotenv.config({
   path: path.resolve(__dirname, '../.env'),
@@ -16,7 +17,8 @@ if (!Number.isInteger(TICKET_TOTAL) || TICKET_TOTAL <= 0) {
 }
 
 async function seed() {
-  const client = new Client({
+  // PostgreSQL
+  const db = new Client({
     host: process.env.DB_HOST ?? 'localhost',
     port: Number(process.env.DB_PORT ?? 5432),
     user: process.env.DB_USERNAME ?? 'ticketing',
@@ -24,18 +26,24 @@ async function seed() {
     database: process.env.DB_DATABASE ?? 'ticketing',
   });
 
-  await client.connect();
+  // Redis
+  const redis = new Redis({
+    host: process.env.REDIS_HOST ?? 'localhost',
+    port: Number(process.env.REDIS_PORT ?? 6379),
+  });
+
+  await db.connect();
 
   try {
     console.log('Resetting benchmark data...');
 
-    await client.query(`
+    await db.query(`
       TRUNCATE TABLE orders, tickets, events CASCADE;
     `);
 
     console.log('Creating benchmark event...');
 
-    await client.query(
+    await db.query(
       `
         INSERT INTO events (
           id,
@@ -49,7 +57,7 @@ async function seed() {
 
     console.log('Creating benchmark ticket...');
 
-    await client.query(
+    await db.query(
       `
         INSERT INTO tickets (
           id,
@@ -62,14 +70,22 @@ async function seed() {
       [TICKET_ID, EVENT_ID, TICKET_TOTAL, TICKET_TOTAL],
     );
 
+    const redisStockKey = `ticket:${TICKET_ID}:stock`;
+
+    await redis.set(redisStockKey, TICKET_TOTAL);
+
+    console.log(`Redis stock initialized: ${redisStockKey} = ${TICKET_TOTAL}`);
+
     console.log('');
     console.log('Benchmark seed completed.');
-    console.log(`Event ID:  ${EVENT_ID}`);
-    console.log(`Ticket ID: ${TICKET_ID}`);
-    console.log(`Tickets:   ${TICKET_TOTAL}`);
-    console.log(`Remaining: ${TICKET_TOTAL}`);
+    console.log(`Event ID:    ${EVENT_ID}`);
+    console.log(`Ticket ID:   ${TICKET_ID}`);
+    console.log(`Total:       ${TICKET_TOTAL}`);
+    console.log(`DB stock:    ${TICKET_TOTAL}`);
+    console.log(`Redis stock: ${TICKET_TOTAL}`);
+    console.log(`Redis key:   ${redisStockKey}`);
   } finally {
-    await client.end();
+    await Promise.all([db.end(), redis.quit()]);
   }
 }
 

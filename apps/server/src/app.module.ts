@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
 import { TicketsModule } from './tickets/tickets.module';
 import { OrdersModule } from './orders/orders.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -32,9 +33,11 @@ import { OrdersModule } from './orders/orders.module';
 
     EventsModule,
 
-    TicketsModule,
-
     OrdersModule,
+
+    RedisModule,
+
+    TicketsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
