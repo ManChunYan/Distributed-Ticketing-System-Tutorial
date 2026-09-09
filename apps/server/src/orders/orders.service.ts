@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { Order } from './entities/order.entity';
 import { Ticket } from '../tickets/entities/ticket.entity';
@@ -17,37 +17,40 @@ export class OrdersService {
 
     @InjectRepository(Ticket)
     private readonly ticketRepository: Repository<Ticket>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async purchase(ticketId: string, userId: string) {
-    // 1. READ
-    const ticket = await this.ticketRepository.findOne({
-      where: { id: ticketId },
+    return this.dataSource.transaction(async (manager) => {
+      // 1. Atomic decrement
+      const result = await manager.query(
+        `
+      UPDATE tickets
+      SET remaining = remaining - 1
+      WHERE id = $1
+        AND remaining > 0
+      RETURNING remaining
+      `,
+        [ticketId],
+      );
+
+      const affectedRows = result[1];
+
+      if (affectedRows === 0) {
+        throw new ConflictException('Ticket sold out');
+      }
+
+      const orderRepository = manager.getRepository(Order);
+
+      const order = orderRepository.create({
+        ticketId,
+        userId,
+        status: 'CONFIRMED',
+      });
+
+      return orderRepository.save(order);
     });
-
-    if (!ticket) {
-      throw new NotFoundException('Ticket not found');
-    }
-
-    // 2. CHECK
-    if (ticket.remaining <= 0) {
-      throw new ConflictException('Ticket sold out');
-    }
-
-    // 3. MODIFY
-    ticket.remaining -= 1;
-
-    // 4. WRITE
-    await this.ticketRepository.save(ticket);
-
-    // 5. CREATE ORDER
-    const order = this.orderRepository.create({
-      ticketId,
-      userId,
-      status: 'CONFIRMED',
-    });
-
-    return this.orderRepository.save(order);
   }
 
   async findOne(id: string) {
