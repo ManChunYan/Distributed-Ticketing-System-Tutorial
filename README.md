@@ -1,6 +1,18 @@
 # Distributed Ticketing System Tutorial
 
-Learn distributed systems by evolving a simple ticketing service through concurrency
+Learn distributed systems by evolving a simple ticketing service through concurrency problems and their solutions.
+
+---
+
+## Project Purpose
+
+This repository is a teaching project built around a ticket-purchasing scenario.
+Its goal is to demonstrate concurrency and distributed-system problems step by step,
+starting from intentionally simple implementations and evolving them over time.
+
+The focus is on making each problem easy to reproduce, observe, and understand.
+Production-grade architecture, abstractions, and code cleanliness are not the primary
+focus, so some implementations are intentionally naive for teaching purposes.
 
 ---
 
@@ -16,11 +28,13 @@ Make sure the following tools are installed:
 
 Check your installation:
 
+```bash
 node -v
 pnpm -v
 docker -v
 docker compose version
 k6 version
+```
 
 ---
 
@@ -90,76 +104,21 @@ http://localhost:3000
 
 ---
 
+## Chapters
+
 ### Chapter 1 - Simple Ticketing System
 
 Tag: `0.1.0`
 
-Stack: NestJS / PostgreSQL / Docker Compose / k6
+Build a basic ticket-purchasing flow and use concurrent requests to demonstrate
+how a naive read-check-write implementation can oversell ticket inventory.
 
-Build
+[Read Chapter 1 →](docs/chapter-01-simple-ticketing-system.md)
 
-Client -> NestJS -> PostgreSQL
+### Chapter 2 - Database Concurrency Control
 
-Build a basic ticket purchasing flow:
+Tag: `0.2.0`
 
-Read Ticket -> Check Stock -> Decrease Stock -> Create Order
+Compare pessimistic locking, optimistic locking, and conditional atomic updates, then use an atomic update to prevent overselling under concurrent requests.
 
-Example:
-
-```text
-========== Overselling Result ==========
-Initial tickets:      100
-Created orders:       1000
-Remaining stock:      81
-
-OVERSELLING DETECTED
-Oversold orders:      900
-========================================
-
-```
-
-### Run the benchmark
-
-From `apps/server`:
-
-```bash
-cp .env.example .env
-pnpm install
-docker compose up -d
-pnpm run start:dev
-```
-
-In another terminal, after the server has created the database tables:
-
-```bash
-pnpm run seed
-```
-
-The seed script creates one event with ticket id
-`00000000-0000-0000-0000-000000000002` and 100 available tickets.
-
-Run the load test from `apps/server`:
-
-```bash
-pnpm run load:test
-```
-
-The benchmark intentionally uses a non-transactional read/check/write flow.
-It demonstrates the race condition described in this chapter and is not a
-production-safe purchasing implementation.
-
-Test
-
-100 Tickets / 1,000 Requests (100 virtual users)
-
-Result
-
-Orders > 100 -> Overselling
-
-Problem
-
-The Read -> Check -> Write flow causes a race condition under concurrent requests.
-
-Next
-
-How can the database safely handle concurrent updates?
+[Read Chapter 2 →](docs/chapter-02-database-concurrency-control.md)

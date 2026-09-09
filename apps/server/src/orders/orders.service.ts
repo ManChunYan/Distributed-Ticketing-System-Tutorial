@@ -15,27 +15,21 @@ export class OrdersService {
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
 
-    @InjectRepository(Ticket)
-    private readonly ticketRepository: Repository<Ticket>,
-
     private readonly dataSource: DataSource,
   ) {}
 
   async purchase(ticketId: string, userId: string) {
     return this.dataSource.transaction(async (manager) => {
-      // 1. Atomic decrement
-      const result = await manager.query(
+      const [, affectedRows] = await manager.query(
         `
-      UPDATE tickets
-      SET remaining = remaining - 1
-      WHERE id = $1
-        AND remaining > 0
-      RETURNING remaining
-      `,
+        UPDATE tickets
+        SET remaining = remaining - 1
+        WHERE id = $1
+          AND remaining > 0
+        RETURNING remaining
+        `,
         [ticketId],
       );
-
-      const affectedRows = result[1];
 
       if (affectedRows === 0) {
         throw new ConflictException('Ticket sold out');

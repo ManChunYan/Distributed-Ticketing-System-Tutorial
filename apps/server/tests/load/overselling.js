@@ -1,10 +1,15 @@
 import http from 'k6/http';
+import exec from 'k6/execution';
 import { check } from 'k6';
 import { Counter } from 'k6/metrics';
 
 export const options = {
   vus: Number(__ENV.LOAD_VUS || 100),
   iterations: Number(__ENV.LOAD_ITERATIONS || 1000),
+
+  thresholds: {
+    checks: ['rate==1'],
+  },
 };
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
@@ -13,6 +18,11 @@ const TICKET_ID = __ENV.TICKET_ID || '00000000-0000-0000-0000-000000000002';
 const purchaseSuccess = new Counter('purchase_success_201');
 const purchaseConflict = new Counter('purchase_conflict_409');
 const purchaseUnexpected = new Counter('purchase_unexpected');
+
+// 201 = purchased
+// 409 = sold out
+// Both are expected outcomes for this load test.
+const purchaseExpectedStatuses = http.expectedStatuses(201, 409);
 
 function randomUserId() {
   const suffix = `${__VU}${__ITER}${Date.now()}`
@@ -31,6 +41,7 @@ export default function () {
       headers: {
         'Content-Type': 'application/json',
       },
+      responseCallback: purchaseExpectedStatuses,
     },
   );
 
@@ -52,14 +63,14 @@ export function teardown() {
   const response = http.get(`${BASE_URL}/events/tickets/${TICKET_ID}/stats`);
 
   if (response.status !== 200) {
-    console.error(`Failed to fetch stats: ${response.status}`);
+    exec.test.fail(`Failed to fetch stats: ${response.status}`);
     return;
   }
 
   const stats = response.json();
 
   console.log('');
-  console.log('========== Overselling Result ==========');
+  console.log('========== Concurrency Result ==========');
   console.log(`Initial tickets:      ${stats.initialStock}`);
   console.log(`Created orders:       ${stats.orderCount}`);
   console.log(`Remaining stock:      ${stats.remainingStock}`);
@@ -73,4 +84,19 @@ export function teardown() {
   }
 
   console.log('========================================');
+
+  const expectedOrders = Math.min(
+    Number(__ENV.LOAD_ITERATIONS || 1000),
+    stats.initialStock,
+  );
+
+  if (
+    stats.isOversold ||
+    stats.orderCount !== expectedOrders ||
+    stats.remainingStock !== stats.initialStock - expectedOrders
+  ) {
+    exec.test.fail(
+      `Inventory correctness failed: orders=${stats.orderCount}, remaining=${stats.remainingStock}`,
+    );
+  }
 }
