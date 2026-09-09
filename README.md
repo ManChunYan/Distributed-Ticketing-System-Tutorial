@@ -73,6 +73,9 @@ DB_USERNAME=ticketing
 DB_PASSWORD=ticketing
 DB_DATABASE=ticketing
 
+REDIS_HOST = localhost
+REDIS_PORT = 6379
+
 BASE_URL=http://localhost:3000
 EVENT_ID=00000000-0000-0000-0000-000000000001
 TICKET_ID=00000000-0000-0000-0000-000000000002
@@ -122,3 +125,7 @@ Tag: `0.2.0`
 Compare pessimistic locking, optimistic locking, and conditional atomic updates, then use an atomic update to prevent overselling under concurrent requests.
 
 [Read Chapter 2 →](docs/chapter-02-database-concurrency-control.md)
+
+### Chapter 3 - Redis Inventory & Reservation
+
+Introduce Redis as an in-memory cache and explore how atomic operations can be used to manage ticket inventory under high concurrency.
