@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 import { Order } from './entities/order.entity';
-import { Ticket } from '../tickets/entities/ticket.entity';
 
 @Injectable()
 export class OrdersService {
@@ -20,12 +19,12 @@ export class OrdersService {
 
   async purchase(ticketId: string, userId: string) {
     return this.dataSource.transaction(async (manager) => {
-      const [, affectedRows] = await manager.query(
+      const [rows, affectedRows] = await manager.query(
         `
         UPDATE tickets
         SET remaining = remaining - 1
         WHERE id = $1
-          AND remaining > 0
+        AND remaining > 0
         RETURNING remaining
         `,
         [ticketId],

@@ -11,21 +11,21 @@ import { Event } from '../../events/entities/event.entity';
 @Entity('tickets')
 export class Ticket {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({
     name: 'event_id',
     type: 'uuid',
   })
-  eventId: string;
+  eventId!: string;
 
   @ManyToOne(() => Event)
   @JoinColumn({ name: 'event_id' })
-  event: Event;
+  event!: Event;
 
   @Column()
-  total: number;
+  total!: number;
 
   @Column()
-  remaining: number;
+  remaining!: number;
 }

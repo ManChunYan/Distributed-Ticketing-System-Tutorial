@@ -210,7 +210,7 @@ return this.dataSource.transaction(async (manager) => {
   const affectedRows = result[1];
 
   if (affectedRows === 0) {
-    throw new ConflictException('Ticket sold out');
+    throw new ConflictException("Ticket sold out");
   }
 
   const orderRepository = manager.getRepository(Order);
@@ -218,7 +218,7 @@ return this.dataSource.transaction(async (manager) => {
   const order = orderRepository.create({
     ticketId,
     userId,
-    status: 'CONFIRMED',
+    status: "CONFIRMED",
   });
 
   return orderRepository.save(order);
@@ -257,10 +257,10 @@ The database evaluates `remaining > 0` as part of the `UPDATE` itself.
 Use the Chapter 1 implementation as the unsafe baseline and Chapter 2 as the fixed
 implementation.
 
-| Version | Inventory Update | Expected Overselling |
-| --- | --- | --- |
-| Chapter 1 | Read -> Check -> Write | YES |
-| Chapter 2 | Conditional Atomic Update | NO |
+| Version   | Inventory Update          | Expected Overselling |
+| --------- | ------------------------- | -------------------- |
+| Chapter 1 | Read -> Check -> Write    | YES                  |
+| Chapter 2 | Conditional Atomic Update | NO                   |
 
 Run the same load-test workload and verify the final database state.
 
@@ -326,4 +326,4 @@ That leads to the next questions:
 
 > Should a real ticketing system immediately purchase a ticket, or reserve it first?
 
-Next: **Chapter 3 - Redis Reservation & Reconciliation**
+Next: **Chapter 3 - Redis Admission Gate & Reservation**

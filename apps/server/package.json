@@ -19,7 +19,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node scripts/seed.ts",
-    "load:test": "k6 run tests/load/overselling.js"
+    "load:test": "k6 run tests/load/overselling.js",
+    "load:reservation": "k6 run tests/load/reservation-gate.js",
+    "benchmark:reservation": "ts-node tests/load/benchmark-reservation.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

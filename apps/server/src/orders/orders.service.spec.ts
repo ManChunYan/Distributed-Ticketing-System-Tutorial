@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { OrdersService } from './orders.service';
 import { Order } from './entities/order.entity';
+import { DataSource } from 'typeorm';
 import { Ticket } from '../tickets/entities/ticket.entity';
 
 describe('OrdersService', () => {
@@ -12,6 +13,7 @@ describe('OrdersService', () => {
       providers: [
         OrdersService,
         { provide: getRepositoryToken(Order), useValue: {} },
+        { provide: DataSource, useValue: {} },
         { provide: getRepositoryToken(Ticket), useValue: {} },
       ],
     }).compile();

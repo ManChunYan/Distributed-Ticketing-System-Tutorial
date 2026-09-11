@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 
 @Injectable()
@@ -54,7 +54,7 @@ export class RedisReservationGate {
         ttlMs.toString(),
       );
 
-    if (result !== 1) {
+    if (Number(result) !== 1) {
       throw new ConflictException('Ticket sold out');
     }
   }

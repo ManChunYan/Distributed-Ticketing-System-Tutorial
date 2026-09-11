@@ -38,7 +38,18 @@ async function seed() {
     console.log('Resetting benchmark data...');
 
     await db.query(`
-      TRUNCATE TABLE orders, tickets, events CASCADE;
+      DO $$
+      DECLARE
+        table_name text;
+      BEGIN
+        FOREACH table_name IN ARRAY ARRAY['orders', 'reservations', 'tickets', 'events']
+        LOOP
+          IF to_regclass(format('public.%I', table_name)) IS NOT NULL THEN
+            EXECUTE format('TRUNCATE TABLE %I CASCADE', table_name);
+          END IF;
+        END LOOP;
+      END
+      $$;
     `);
 
     console.log('Creating benchmark event...');
@@ -71,6 +82,12 @@ async function seed() {
     );
 
     const redisStockKey = `ticket:${TICKET_ID}:stock`;
+
+    const staleKeys = await redis.keys('reservation:*');
+    const staleStockKeys = await redis.keys('ticket:*:stock');
+    if (staleKeys.length > 0 || staleStockKeys.length > 0) {
+      await redis.del(...staleKeys, ...staleStockKeys);
+    }
 
     await redis.set(redisStockKey, TICKET_TOTAL);
 

@@ -73,8 +73,10 @@ DB_USERNAME=ticketing
 DB_PASSWORD=ticketing
 DB_DATABASE=ticketing
 
-REDIS_HOST = localhost
-REDIS_PORT = 6379
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+RESERVATION_STRATEGY=REDIS_GATE
 
 BASE_URL=http://localhost:3000
 EVENT_ID=00000000-0000-0000-0000-000000000001
@@ -126,6 +128,10 @@ Compare pessimistic locking, optimistic locking, and conditional atomic updates,
 
 [Read Chapter 2 →](docs/chapter-02-database-concurrency-control.md)
 
-### Chapter 3 - Redis Inventory & Reservation
+### Chapter 3 - Redis Admission Gate & Reservation
 
-Introduce Redis as an in-memory cache and explore how atomic operations can be used to manage ticket inventory under high concurrency.
+Tag: 0.3.0
+
+Introduce Redis as an admission gate to reject sold-out requests before they reach PostgreSQL, while keeping PostgreSQL as the final correctness boundary.
+
+[Read Chapter 3 →](docs/chapter-03-redis-admission-gate-and-reservation.md)
