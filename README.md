@@ -4,6 +4,16 @@ Learn distributed systems by evolving a simple ticketing service through concurr
 
 ---
 
+## Project Status
+
+> 🚧 **Work in Progress**
+>
+> This project is under active development. New chapters, experiments, and improvements will be added over time.
+>
+> APIs and implementations may change as the tutorial evolves.
+
+---
+
 ## Project Purpose
 
 This repository is a teaching project built around a ticket-purchasing scenario.
