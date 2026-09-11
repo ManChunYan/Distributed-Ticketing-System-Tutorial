@@ -2,8 +2,6 @@
 
 Learn distributed systems by evolving a simple ticketing service through concurrency problems and their solutions.
 
----
-
 ## Project Status
 
 > 🚧 **Work in Progress**
@@ -140,7 +138,7 @@ Compare pessimistic locking, optimistic locking, and conditional atomic updates,
 
 ### Chapter 3 - Redis Admission Gate & Reservation
 
-Tag: 0.3.0
+Tag: `0.3.0`
 
 Introduce Redis as an admission gate to reject sold-out requests before they reach PostgreSQL, while keeping PostgreSQL as the final correctness boundary.
 
